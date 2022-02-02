@@ -7,9 +7,9 @@ function comm_postAjax(param) {
 		url: param.url,
 		data: JSON.stringify(param.data),
 		contentType: "application/json; charset=utf-8",
-		dataType : "json" // 응답 데이터
+		dataType: "json" // 응답 데이터
 	}).done(function(response) {// 성공시
-	    console.log(response)
+		console.log(response)
 		param.success();
 	}).fail(function(error) {// fail시
 		param.fail();
@@ -20,17 +20,19 @@ function comm_postAjax(param) {
 /*******************************************************/
 /*											GET AJAX												 */
 /*******************************************************/
-function comm_getAjax(data) {
+function comm_getAjax(param) {
 	$.ajax({
 		type: "GET",
-		url: data.url,
-		param: data.data,
-		contentType: "applicagtion/json; charset=utf-8",
+		url: param.url,
+		data: JSON.stringify(param.data),
+		contentType: "application/json; charset=utf-8",
 		dataType: "json" // 응답 데이터
-	}).done(function(data) {
-		
-	}).fail(function(data) {
-
+	}).done(function(response) {// 성공시
+		console.log(response)
+		param.success();
+	}).fail(function(error) {// fail시
+		param.fail();
+		toastr.error(JSON.stringify(error));
 	});
 }
 

@@ -1,9 +1,7 @@
 $(document).ready(function() {
-	let signin_btn = document.getElementById("signin_btn");
 	let signup_btn = document.getElementById("signup_btn");
 	let find_password_btn = document.getElementById("find_password_btn");
 	let redirection = document.getElementById("redirection");
-	let regist_user = document.getElementById("regist_user");
 
 	// 이미지 default 위치
 	const default_location = {
@@ -17,18 +15,16 @@ $(document).ready(function() {
 		img3_top: $(".img_container_cloud3").css("top"),
 	}
 
-	//비밀번호 찾기 기능 이후에 추가
+	// 세션 존재 시 main으로 연결 존재하지 않으면 로그인/회원가입페이지에 머무름
+	sessionCheck();
+	
+	// 비밀번호 찾기 기능 이후에 추가
 	find_password_btn.onclick = () => {
 		toastr.success('준비중입니다.');
 	}
 
-	// 로그인
-	signin_btn.onclick = () => {
-		click_signin();
-	}
-
-	// 회원가입 정보 DB로 보내기
-	createUser.init();
+	// 로그인 회원가입 api 
+	api.init();
 
 	//회원가입 버튼 눌렀을 때 div열기
 	signup_btn.onclick = () => {
@@ -40,45 +36,35 @@ $(document).ready(function() {
 		back_signin(default_location);
 	}
 });
-
 /*******************************************************/
-/*													로그인												 */
-/*******************************************************/
-function click_signin() {
-	$.ajax({
-		url: "/purplesheep/main",
-		type: "GET"
-	}).done(function(data) {
-		location.replace("/purplesheep/main");
-	});
-}
-/*******************************************************/
-/*										sign up 버튼클릭										 */
+/*										로그인/회원가입											 */
 /*******************************************************/
 // 1. id가 중복인지 아닌지 체크
 // 2. password 두개가 일치하는 지 체크
 // 3. 필수값을 전부 입력했는 지 체크
-/*function create_user() {
-	//if(!validate_id()){
-	//	toastr.error("아이디가 중복됩니다.");
-	//}
-	if (!validate_password()) {
-		toastr.error("비밀번호를 확인해주세요.");
-		return false;
-	}
-	if (comm_nvl(validate_required(), '') != '') { // 필수값 체크
-		toastr.error(validate_required());
-	}
-}*/
 
-let createUser = {
+let api = {
 	init: function() {
+		//회원가입
 		$("#regist_user").on("click", () => {
-			this.save();
+			this.signup();
+		});
+		//로그인
+		$("#signin_btn").on("click", () => {
+			this.signin();
 		});
 	},
-	save: function() {
-		
+	signup: function() {
+		//if(!validate_id()){
+		//	toastr.error("아이디가 중복됩니다.");
+		//}
+		if (!validate_password()) {
+			toastr.error("비밀번호를 확인해주세요.");
+			return false;
+		}
+		if (comm_nvl(validate_required(), '') != '') { // 필수값 체크
+			toastr.error(validate_required());
+		}
 		let user_data = {
 			userId: $("#userId").val(),
 			userName: $("#userName").val(),
@@ -95,6 +81,24 @@ let createUser = {
 			},
 			fail: function() {
 				toastr.error("회원가입에 실패했습니다.");
+			}
+		};
+		comm_postAjax(param);
+	},
+	signin: function() {
+		let user_data = {
+			userId: $("#signinId").val(),
+			userPassword: $("#signinPassword").val(),
+		};
+
+		let param = {
+			url: "/purplesheep/api/signin",
+			data: user_data,
+			success: function() {
+				location.href = "/purplesheep/main"
+			},
+			fail: function() {
+				toastr.error("로그인에 실패했습니다.");
 			}
 		};
 		comm_postAjax(param);
@@ -230,4 +234,15 @@ function back_signin(param) {
 	$("h6").fadeOut(200, function() {
 		$(this).html("share your happy moments with us!").fadeIn(500);
 	});
+}
+
+/*******************************************************/
+/*											세션유무 체크											 */
+/*******************************************************/
+function sessionCheck() {
+	var uid = '<%=(String)session.getAttribute("principal")%>';
+
+	if (uid != "null"){
+		location.replace("/purplesheep/main");
+	}
 }
